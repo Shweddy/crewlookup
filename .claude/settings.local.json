@@ -11,7 +11,10 @@
       "Bash(python3 -m json.tool)",
       "Bash(curl -s \"http://localhost:3000/api/crew/search?crew_id=33105\")",
       "Bash(curl -s \"http://localhost:3000/api/crew/search?crew_id=99999\")",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }

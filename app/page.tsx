@@ -258,7 +258,7 @@ function RegisterTab() {
       } else {
         setState('success')
         setMsg('You\'re registered! Others can now find you.')
-        setForm({ crew_id: '', name: '', position: '', line_link: '', is_visible: true })
+        setForm({ crew_id: '', name: '', line_link: '', is_visible: true })
       }
     } catch {
       setState('error')
