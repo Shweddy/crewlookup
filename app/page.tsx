@@ -238,7 +238,7 @@ function NotFoundCard({ crewId }: { crewId: string }) {
 
 /* ─── Register Tab ─── */
 function RegisterTab() {
-  const [form, setForm] = useState({ crew_id: '', name: '', position: '', line_link: '', is_visible: true })
+  const [form, setForm] = useState({ crew_id: '', name: '', line_link: '', is_visible: true })
   const [state, setState] = useState<FormState>('idle')
   const [msg, setMsg] = useState('')
 
@@ -285,29 +285,6 @@ function RegisterTab() {
 
         <Field label="Name" required>
           <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Your name" maxLength={60} style={inputStyle} />
-        </Field>
-
-        <Field label="Position">
-          <div style={{ display: 'flex', gap: 8 }}>
-            {['FA', 'Purser'].map(p => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => set('position', form.position === p ? '' : p)}
-                style={{
-                  padding: '8px 18px', borderRadius: 10, border: '1px solid',
-                  borderColor: form.position === p ? 'var(--red)' : 'var(--border)',
-                  background: form.position === p ? 'var(--red-dim)' : 'var(--surface)',
-                  color: form.position === p ? 'var(--red)' : 'var(--text-muted)',
-                  fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  boxShadow: form.position === p ? '0 0 10px var(--red-glow)' : 'none',
-                }}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
         </Field>
 
         <Field label="LINE Link" required hint="Format: https://line.me/ti/p/~yourid">

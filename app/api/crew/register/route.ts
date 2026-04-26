@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { crew_id, name, position, line_link, is_visible } = body
+  const { crew_id, name, line_link, is_visible } = body
 
   if (!crew_id?.trim() || !name?.trim() || !line_link?.trim()) {
     return NextResponse.json({ error: 'crew_id, name, and line_link are required' }, { status: 400 })
@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
   const { error } = await supabase.from('crew').insert({
     crew_id: crew_id.trim(),
     name: name.trim(),
-    position: position?.trim() || null,
     line_link: line_link.trim(),
     is_registered: true,
     is_visible: is_visible ?? true,
