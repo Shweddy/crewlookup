@@ -177,11 +177,6 @@ function ResultCard({ crew }: { crew: { crew_id: string; name: string; position:
         </div>
         <div>
           <div style={{ fontWeight: 700, fontSize: 17 }}>{crew.name}</div>
-          {crew.position && (
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>
-              {crew.position}
-            </div>
-          )}
         </div>
       </div>
 
