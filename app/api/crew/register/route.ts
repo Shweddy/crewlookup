@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { getSupabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await request.json()
   const { crew_id, name, line_link, is_visible } = body
 
@@ -17,20 +22,31 @@ export async function POST(request: NextRequest) {
 
   const supabase = getSupabase()
 
-  const { data: existing } = await supabase
+  const { data: existingByLine } = await supabase
+    .from('crew')
+    .select('id')
+    .eq('line_user_id', session.user.id)
+    .single()
+
+  if (existingByLine) {
+    return NextResponse.json({ error: 'You are already registered' }, { status: 409 })
+  }
+
+  const { data: existingById } = await supabase
     .from('crew')
     .select('id')
     .eq('crew_id', crew_id.trim())
     .single()
 
-  if (existing) {
-    return NextResponse.json({ error: 'Crew ID already registered' }, { status: 409 })
+  if (existingById) {
+    return NextResponse.json({ error: 'Crew ID already taken' }, { status: 409 })
   }
 
   const { error } = await supabase.from('crew').insert({
     crew_id: crew_id.trim(),
     name: name.trim(),
     line_link: line_link.trim(),
+    line_user_id: session.user.id,
     is_registered: true,
     is_visible: is_visible ?? true,
   })

@@ -14,7 +14,9 @@
       "Bash(npx vercel *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git -C /Users/Narit/Documents/Projects/FDproject/crewlookup tag v1-no-auth)",
+      "Bash(git -C /Users/Narit/Documents/Projects/FDproject/crewlookup push origin v1-no-auth)"
     ]
   }
 }
