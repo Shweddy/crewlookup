@@ -166,7 +166,7 @@ function MainApp({ session, profile, setProfile }: { session: { user: { id: stri
           <div onClick={() => setTab('settings')} style={{ width: 30, height: 30, borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border)', cursor: 'pointer', background: 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'var(--red)', flexShrink: 0 }}>
             {session.user.image
               ? <img src={session.user.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : profile.name.charAt(0).toUpperCase()
+              : (profile.name.charAt(0).toUpperCase() || '?')
             }
           </div>
         </div>
@@ -273,7 +273,11 @@ function SettingsTab({ profile, setProfile }: { profile: CrewProfile; setProfile
       const res = await fetch('/api/crew/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
       const data = await res.json()
       if (!res.ok) { setSaveState('error'); setMsgType('error'); setMsg(data.error || 'Update failed') }
-      else { setProfile({ ...profile, name: form.name, line_link: form.line_link }); setSaveState('idle'); setMsgType('success'); setMsg('Profile updated.'); setEditing(false) }
+      else {
+        setProfile({ ...profile, name: form.name, line_link: form.line_link })
+        setSaveState('idle'); setMsgType('success'); setMsg('Profile updated.'); setEditing(false)
+        setTimeout(() => setMsg(''), 3000)
+      }
     } catch { setSaveState('error'); setMsgType('error'); setMsg('Network error.') }
   }
 
@@ -281,8 +285,13 @@ function SettingsTab({ profile, setProfile }: { profile: CrewProfile; setProfile
     setTogglingVisibility(true); setMsg('')
     try {
       const res = await fetch('/api/crew/visibility', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ is_visible: val }) })
-      if (res.ok) { setProfile({ ...profile, is_visible: val }); setMsgType('success'); setMsg(val ? 'You are now visible.' : 'You are now hidden.') }
-      else { setMsgType('error'); setMsg('Update failed.') }
+      if (res.ok) {
+        setProfile({ ...profile, is_visible: val })
+        setMsgType('success'); setMsg(val ? 'You are now visible.' : 'You are now hidden.')
+        setTimeout(() => setMsg(''), 3000)
+      } else {
+        setMsgType('error'); setMsg('Update failed — please try again.')
+      }
     } catch { setMsgType('error'); setMsg('Network error.') }
     finally { setTogglingVisibility(false) }
   }
