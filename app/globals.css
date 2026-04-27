@@ -27,6 +27,8 @@ html, body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  /* prevent layout shift when keyboard opens on iOS */
+  height: -webkit-fill-available;
 }
 
 .mono { font-family: 'JetBrains Mono', monospace; }
