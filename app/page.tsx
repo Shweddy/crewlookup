@@ -101,6 +101,7 @@ function OnboardingScreen({ session, onComplete }: { session: { user: { name?: s
           <Field label="LINE Link" required hint="Format: https://line.me/ti/p/~yourid">
             <input value={form.line_link} onChange={e => setForm(f => ({ ...f, line_link: e.target.value }))} placeholder="https://line.me/ti/p/~yourid" style={inputStyle} />
           </Field>
+          <LineLinkHelper />
           {msg && <Alert type={state === 'error' ? 'error' : 'success'}>{msg}</Alert>}
           <button type="submit" disabled={state === 'loading' || !form.crew_id.trim() || !form.line_link.trim()} style={{ ...primaryButtonStyle(state === 'loading' || !form.crew_id.trim() || !form.line_link.trim()), width: '100%', marginTop: 4 }}>
             {state === 'loading' ? <><Spinner size={14} /> Setting up…</> : 'Complete Setup →'}
@@ -280,6 +281,7 @@ function SettingsTab({ profile, setProfile }: { profile: CrewProfile; setProfile
               <Field label="LINE Link" required hint="Format: https://line.me/ti/p/~yourid">
                 <input value={form.line_link} onChange={e => setForm(f => ({ ...f, line_link: e.target.value }))} style={inputStyle} />
               </Field>
+              <LineLinkHelper />
               <button type="submit" disabled={saveState === 'loading'} style={primaryButtonStyle(saveState === 'loading')}>
                 {saveState === 'loading' ? <><Spinner size={13} /> Saving…</> : 'Save Changes'}
               </button>
@@ -331,6 +333,33 @@ function Toggle({ value, onChange, disabled }: { value: boolean; onChange: (v: b
     <button type="button" onClick={() => !disabled && onChange(!value)} style={{ width: 46, height: 26, borderRadius: 100, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer', background: value ? 'var(--red)' : 'var(--surface2)', boxShadow: value ? '0 0 12px var(--red-glow)' : 'none', position: 'relative', transition: 'all 0.2s', flexShrink: 0, opacity: disabled ? 0.6 : 1 }} aria-pressed={value}>
       <div style={{ position: 'absolute', top: 3, left: value ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
     </button>
+  )
+}
+
+function LineLinkHelper() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ marginTop: 8 }}>
+      <button type="button" onClick={() => setOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, color: 'var(--line-green)', fontWeight: 600, padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ fontSize: 10, display: 'inline-block', transform: open ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▶</span>
+        กดดูวิธีหา Line link
+      </button>
+      {open && (
+        <div style={{ marginTop: 10, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: 'var(--text)' }}>วิธีหา LINE ID Link</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>(เอาไว้ให้คนอื่นกดแอดคุณ)</div>
+          {[
+            '1. เปิดแอป LINE',
+            '2. ไปที่ ตั้งค่า (Settings)',
+            '3. กด ที่รูปโปรไฟล์ (Profile)',
+            '4. กด My QR code → กด copy link',
+            '5. กดวาง ในช่อง LINE LINK',
+          ].map(step => (
+            <div key={step} style={{ fontSize: 13, color: 'var(--text-secondary)', padding: '4px 0', lineHeight: 1.5 }}>{step}</div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
