@@ -118,7 +118,7 @@ function OnboardingScreen({ session, onComplete }: { session: { user: { name?: s
             <input className="mono" value={form.crew_id}
               onChange={e => setForm(f => ({ ...f, crew_id: e.target.value }))}
               onBlur={() => setTouched(t => ({ ...t, crew_id: true }))}
-              placeholder="e.g. 1004317" maxLength={7}
+              placeholder="e.g. 1234567" maxLength={7}
               style={{ ...inputStyle, borderColor: crewIdErr ? 'var(--red)' : 'var(--border)' }} />
             {crewIdErr && <div style={{ fontSize: 11, color: 'var(--red)', marginTop: 5 }}>{crewIdErr}</div>}
           </Field>
@@ -202,7 +202,7 @@ function SearchTab() {
       <form onSubmit={handleSearch} style={{ marginTop: 24 }}>
         <label style={labelStyle}>Crew ID</label>
         <div style={{ display: 'flex', gap: 10 }}>
-          <input className="mono" value={crewId} onChange={e => { if (/^\d{0,7}$/.test(e.target.value)) setCrewId(e.target.value) }} placeholder="e.g. 1004317" maxLength={7} style={inputStyle} />
+          <input className="mono" value={crewId} onChange={e => { if (/^\d{0,7}$/.test(e.target.value)) setCrewId(e.target.value) }} placeholder="e.g. 1234567" maxLength={7} style={inputStyle} />
           <button type="submit" disabled={loading || crewId.length !== 7} style={primaryButtonStyle(loading || crewId.length !== 7)}>
             {loading ? <Spinner size={14} /> : 'Search'}
           </button>
