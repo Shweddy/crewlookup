@@ -3,6 +3,18 @@
 import { useState, useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
+function validateCrewId(v: string) {
+  if (!v.trim()) return 'Crew ID is required'
+  if (!/^\d{7}$/.test(v.trim())) return 'Crew ID must be exactly 7 digits'
+  return ''
+}
+
+function validateLineLink(v: string) {
+  if (!v.trim()) return 'LINE link is required'
+  if (!v.trim().startsWith('https://line.me/')) return 'Must start with https://line.me/'
+  return ''
+}
+
 type Tab = 'search' | 'settings'
 type FormState = 'idle' | 'loading' | 'success' | 'error'
 type SearchResult =
@@ -65,11 +77,18 @@ function LoginScreen() {
 /* ─── Onboarding Screen ─── */
 function OnboardingScreen({ session, onComplete }: { session: { user: { name?: string | null } }; onComplete: (p: CrewProfile) => void }) {
   const [form, setForm] = useState({ crew_id: '', name: session.user.name ?? '', line_link: '' })
+  const [touched, setTouched] = useState({ crew_id: false, line_link: false })
   const [state, setState] = useState<FormState>('idle')
   const [msg, setMsg] = useState('')
 
+  const crewIdErr = touched.crew_id ? validateCrewId(form.crew_id) : ''
+  const lineLinkErr = touched.line_link ? validateLineLink(form.line_link) : ''
+  const isValid = !validateCrewId(form.crew_id) && !validateLineLink(form.line_link) && form.name.trim()
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setTouched({ crew_id: true, line_link: true })
+    if (!isValid) return
     setState('loading'); setMsg('')
     try {
       const res = await fetch('/api/crew/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, is_visible: true }) })
@@ -96,14 +115,24 @@ function OnboardingScreen({ session, onComplete }: { session: { user: { name?: s
             <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" maxLength={60} style={inputStyle} />
           </Field>
           <Field label="Crew ID" required>
-            <input className="mono" value={form.crew_id} onChange={e => setForm(f => ({ ...f, crew_id: e.target.value }))} placeholder="e.g. 10234" maxLength={20} style={inputStyle} />
+            <input className="mono" value={form.crew_id}
+              onChange={e => setForm(f => ({ ...f, crew_id: e.target.value }))}
+              onBlur={() => setTouched(t => ({ ...t, crew_id: true }))}
+              placeholder="e.g. 1004317" maxLength={7}
+              style={{ ...inputStyle, borderColor: crewIdErr ? 'var(--red)' : 'var(--border)' }} />
+            {crewIdErr && <div style={{ fontSize: 11, color: 'var(--red)', marginTop: 5 }}>{crewIdErr}</div>}
           </Field>
           <Field label="LINE Link" required hint="Format: https://line.me/ti/p/~yourid">
-            <input value={form.line_link} onChange={e => setForm(f => ({ ...f, line_link: e.target.value }))} placeholder="https://line.me/ti/p/~yourid" style={inputStyle} />
+            <input value={form.line_link}
+              onChange={e => setForm(f => ({ ...f, line_link: e.target.value }))}
+              onBlur={() => setTouched(t => ({ ...t, line_link: true }))}
+              placeholder="https://line.me/ti/p/~yourid"
+              style={{ ...inputStyle, borderColor: lineLinkErr ? 'var(--red)' : 'var(--border)' }} />
+            {lineLinkErr && <div style={{ fontSize: 11, color: 'var(--red)', marginTop: 5 }}>{lineLinkErr}</div>}
           </Field>
           <LineLinkHelper />
           {msg && <Alert type={state === 'error' ? 'error' : 'success'}>{msg}</Alert>}
-          <button type="submit" disabled={state === 'loading' || !form.crew_id.trim() || !form.line_link.trim()} style={{ ...primaryButtonStyle(state === 'loading' || !form.crew_id.trim() || !form.line_link.trim()), width: '100%', marginTop: 4 }}>
+          <button type="submit" disabled={state === 'loading' || !isValid} style={{ ...primaryButtonStyle(state === 'loading' || !isValid), width: '100%', marginTop: 4 }}>
             {state === 'loading' ? <><Spinner size={14} /> Setting up…</> : 'Complete Setup →'}
           </button>
         </form>
@@ -226,13 +255,19 @@ function NotFoundCard({ crewId }: { crewId: string }) {
 function SettingsTab({ profile, setProfile }: { profile: CrewProfile; setProfile: (p: CrewProfile) => void }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: profile.name, line_link: profile.line_link })
+  const [touchedEdit, setTouchedEdit] = useState({ line_link: false })
   const [saveState, setSaveState] = useState<FormState>('idle')
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState<'success' | 'error'>('success')
   const [togglingVisibility, setTogglingVisibility] = useState(false)
 
+  const editLineLinkErr = touchedEdit.line_link ? validateLineLink(form.line_link) : ''
+  const editIsValid = !validateLineLink(form.line_link) && form.name.trim()
+
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
+    setTouchedEdit({ line_link: true })
+    if (!editIsValid) return
     setSaveState('loading'); setMsg('')
     try {
       const res = await fetch('/api/crew/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
@@ -279,10 +314,14 @@ function SettingsTab({ profile, setProfile }: { profile: CrewProfile; setProfile
                 <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={inputStyle} />
               </Field>
               <Field label="LINE Link" required hint="Format: https://line.me/ti/p/~yourid">
-                <input value={form.line_link} onChange={e => setForm(f => ({ ...f, line_link: e.target.value }))} style={inputStyle} />
+                <input value={form.line_link}
+                  onChange={e => setForm(f => ({ ...f, line_link: e.target.value }))}
+                  onBlur={() => setTouchedEdit(t => ({ ...t, line_link: true }))}
+                  style={{ ...inputStyle, borderColor: editLineLinkErr ? 'var(--red)' : 'var(--border)' }} />
+                {editLineLinkErr && <div style={{ fontSize: 11, color: 'var(--red)', marginTop: 5 }}>{editLineLinkErr}</div>}
               </Field>
               <LineLinkHelper />
-              <button type="submit" disabled={saveState === 'loading'} style={primaryButtonStyle(saveState === 'loading')}>
+              <button type="submit" disabled={saveState === 'loading' || !editIsValid} style={primaryButtonStyle(saveState === 'loading' || !editIsValid)}>
                 {saveState === 'loading' ? <><Spinner size={13} /> Saving…</> : 'Save Changes'}
               </button>
             </form>

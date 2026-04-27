@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'crew_id, name, and line_link are required' }, { status: 400 })
   }
 
+  if (!/^\d{7}$/.test(crew_id.trim())) {
+    return NextResponse.json({ error: 'Crew ID must be exactly 7 digits' }, { status: 400 })
+  }
+
   if (!line_link.startsWith('https://line.me/')) {
     return NextResponse.json({ error: 'Invalid LINE link format' }, { status: 400 })
   }
